@@ -1231,13 +1231,16 @@ MonoBehaviour:
   - {fileID: 9070640383994996252, guid: 100170be069c641afb587f49e0d30a0a, type: 3}
   - {fileID: 6288519165821995776, guid: 23cf430a8d4e74280b869b1783b79a7f, type: 3}
   goodIconSprite: {fileID: 2201188132432103841, guid: ed80b2d4d72f54d828ff646113dcc4eb, type: 3}
-  scoreText: {fileID: 0}
-  highScoreText: {fileID: 0}
-  gameOverText: {fileID: 0}
-  gameOverPanel: {fileID: 0}
-  focusDots: []
-  crosshairObj: {fileID: 0}
-  crosshairTrail: {fileID: 0}
+  scoreText: {fileID: 1667388805}
+  highScoreText: {fileID: 277586274}
+  gameOverText: {fileID: 2023361012}
+  gameOverPanel: {fileID: 716401188}
+  focusDots:
+  - {fileID: 730026140}
+  - {fileID: 66981008}
+  - {fileID: 715398818}
+  crosshairObj: {fileID: 710178388}
+  crosshairTrail: {fileID: 710178389}
 --- !u!4 &1557860013
 Transform:
   m_ObjectHideFlags: 0
