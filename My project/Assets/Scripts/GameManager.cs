@@ -9,7 +9,19 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     Sprite goodIconSprite;
     [SerializeField]
-    Sprite crosshairSprite;
+    Text scoreText;
+    [SerializeField]
+    Text highScoreText;
+    [SerializeField]
+    Text gameOverText;
+    [SerializeField]
+    GameObject gameOverPanel;
+    [SerializeField]
+    Image[] focusDots;
+    [SerializeField]
+    GameObject crosshairObj;
+    [SerializeField]
+    TrailRenderer crosshairTrail;
 
     int score;
     int highScore;
@@ -20,35 +32,14 @@ public class GameManager : MonoBehaviour
     float fallSpeed;
     float restartCooldown;
 
-    Text scoreText;
-    Text highScoreText;
-    Text gameOverText;
-    Image[] focusDots;
-    GameObject gameOverPanel;
-    GameObject crosshairObj;
-    TrailRenderer crosshairTrail;
     Camera cam;
     Sprite whiteSquare;
 
     void Start()
     {
         cam = Camera.main;
-        if (cam == null)
-        {
-            cam = FindFirstObjectByType<Camera>();
-        }
-
-        cam.orthographic = true;
-        cam.orthographicSize = 8f;
-        cam.backgroundColor = Color.black;
-        cam.transform.position = new Vector3(0, 0, -10);
-
         whiteSquare = MakeWhiteSquare();
         highScore = PlayerPrefs.GetInt("BlockMateHighScore", 0);
-
-        CreateUI();
-        CreateCrosshair();
-        CreateBottomLine();
         StartGame();
     }
 
@@ -307,127 +298,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void CreateUI()
-    {
-        Font font = Font.CreateDynamicFontFromOSFont("Arial", 14);
-
-        GameObject canvasObject = new GameObject("GameCanvas");
-        Canvas canvas = canvasObject.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1080, 1920);
-        canvasObject.AddComponent<GraphicRaycaster>();
-
-        scoreText = CreateTextElement("Score: 0", font, 48, Color.white, canvasObject.transform);
-        scoreText.rectTransform.anchorMin = new Vector2(1, 1);
-        scoreText.rectTransform.anchorMax = new Vector2(1, 1);
-        scoreText.rectTransform.pivot = new Vector2(1, 1);
-        scoreText.rectTransform.anchoredPosition = new Vector2(-30, -30);
-        scoreText.rectTransform.sizeDelta = new Vector2(400, 70);
-        scoreText.alignment = TextAnchor.UpperRight;
-
-        highScoreText = CreateTextElement("Best: 0", font, 36, Color.gray, canvasObject.transform);
-        highScoreText.rectTransform.anchorMin = new Vector2(1, 1);
-        highScoreText.rectTransform.anchorMax = new Vector2(1, 1);
-        highScoreText.rectTransform.pivot = new Vector2(1, 1);
-        highScoreText.rectTransform.anchoredPosition = new Vector2(-30, -100);
-        highScoreText.rectTransform.sizeDelta = new Vector2(400, 50);
-        highScoreText.alignment = TextAnchor.UpperRight;
-
-        Text focusLabel = CreateTextElement("Focus", font, 36, Color.white, canvasObject.transform);
-        focusLabel.rectTransform.anchorMin = new Vector2(0, 1);
-        focusLabel.rectTransform.anchorMax = new Vector2(0, 1);
-        focusLabel.rectTransform.pivot = new Vector2(0, 1);
-        focusLabel.rectTransform.anchoredPosition = new Vector2(30, -30);
-        focusLabel.rectTransform.sizeDelta = new Vector2(200, 50);
-        focusLabel.alignment = TextAnchor.UpperLeft;
-
-        focusDots = new Image[3];
-        for (int i = 0; i < 3; i++)
-        {
-            GameObject dotObject = new GameObject("FocusDot" + i);
-            dotObject.transform.SetParent(canvasObject.transform, false);
-
-            Image dot = dotObject.AddComponent<Image>();
-            dot.color = Color.blue;
-
-            dot.rectTransform.anchorMin = new Vector2(0, 1);
-            dot.rectTransform.anchorMax = new Vector2(0, 1);
-            dot.rectTransform.pivot = new Vector2(0, 1);
-            dot.rectTransform.anchoredPosition = new Vector2(30 + i * 55, -85);
-            dot.rectTransform.sizeDelta = new Vector2(45, 45);
-
-            focusDots[i] = dot;
-        }
-
-        gameOverPanel = new GameObject("GameOverPanel");
-        gameOverPanel.transform.SetParent(canvasObject.transform, false);
-
-        Image panelBackground = gameOverPanel.AddComponent<Image>();
-        panelBackground.color = new Color(0, 0, 0, 0.8f);
-        panelBackground.rectTransform.anchorMin = Vector2.zero;
-        panelBackground.rectTransform.anchorMax = Vector2.one;
-        panelBackground.rectTransform.sizeDelta = Vector2.zero;
-
-        gameOverText = CreateTextElement("", font, 56, Color.white, gameOverPanel.transform);
-        gameOverText.rectTransform.anchorMin = Vector2.zero;
-        gameOverText.rectTransform.anchorMax = Vector2.one;
-        gameOverText.rectTransform.sizeDelta = new Vector2(-60, -60);
-        gameOverText.alignment = TextAnchor.MiddleCenter;
-
-        gameOverPanel.SetActive(false);
-    }
-
-    Text CreateTextElement(string text, Font font, int fontSize, Color color, Transform parent)
-    {
-        GameObject textObject = new GameObject("Text");
-        textObject.transform.SetParent(parent, false);
-
-        Text textComponent = textObject.AddComponent<Text>();
-        textComponent.text = text;
-        textComponent.font = font;
-        textComponent.fontSize = fontSize;
-        textComponent.color = color;
-
-        return textComponent;
-    }
-
-    void CreateCrosshair()
-    {
-        crosshairObj = new GameObject("Crosshair");
-
-        SpriteRenderer sr = crosshairObj.AddComponent<SpriteRenderer>();
-        sr.sprite = crosshairSprite;
-        sr.sortingOrder = 100;
-        crosshairObj.transform.localScale = Vector3.one * 2f;
-
-        crosshairTrail = crosshairObj.AddComponent<TrailRenderer>();
-        crosshairTrail.time = 0.2f;
-        crosshairTrail.startWidth = 0.25f;
-        crosshairTrail.endWidth = 0.05f;
-        crosshairTrail.material = new Material(Shader.Find("Sprites/Default"));
-        crosshairTrail.startColor = Color.white;
-        crosshairTrail.endColor = new Color(1, 1, 1, 0);
-        crosshairTrail.sortingOrder = 99;
-        crosshairTrail.emitting = false;
-    }
-
-    void CreateBottomLine()
-    {
-        GameObject line = new GameObject("BottomLine");
-
-        SpriteRenderer sr = line.AddComponent<SpriteRenderer>();
-        sr.sprite = whiteSquare;
-        sr.color = new Color(1, 0, 0, 0.5f);
-
-        float bottomY = cam.ViewportToWorldPoint(new Vector3(0, 0, 0)).y;
-        float screenWidth = cam.ViewportToWorldPoint(new Vector3(1, 0, 0)).x - cam.ViewportToWorldPoint(new Vector3(0, 0, 0)).x;
-
-        line.transform.position = new Vector3(0, bottomY, 0);
-        line.transform.localScale = new Vector3(screenWidth, 0.1f, 1);
-    }
-
     Sprite MakeWhiteSquare()
     {
         Texture2D texture = new Texture2D(4, 4);
@@ -441,5 +311,4 @@ public class GameManager : MonoBehaviour
         texture.Apply();
         return Sprite.Create(texture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4);
     }
-
 }
